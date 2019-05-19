@@ -1,14 +1,22 @@
 ---
 - hosts: dev
+  vars:
+    php_version: '5.6'
+
   become: yes
   remote_user: centos
+  roles: 
+    - role: geerlingguy.repo-remi
+      when: ansible_os_family == 'RedHat'
+    - geerlingguy.php-versions
+    - geerlingguy.php
+    - geerlingguy.php-mysql
+
   tasks:
     - name: Install Apache.
       yum: name={{ item }} state=present
       with_items:
       - httpd
-    - name: install PHP
-      include: install_php.yml
     - name: Download WordPress
       get_url: url=http://wordpress.org/wordpress-latest.tar.gz dest=/var/www/html/wordpress.tar.gz force=yes
     - name: Extract WordPress
