@@ -1,8 +1,9 @@
 provider "aws" {
-  region = "${var.aws_region}"
+  region = var.aws_region
 }
 
-data "aws_availability_zones" "available" {}
+data "aws_availability_zones" "available" {
+}
 
 # VPC
 resource "aws_vpc" "vpc" {
@@ -15,7 +16,7 @@ resource "aws_vpc" "vpc" {
 #internet gateway
 
 resource "aws_internet_gateway" "internet_gateway" {
-  vpc_id = "${aws_vpc.vpc.id}"
+  vpc_id = aws_vpc.vpc.id
   tags = {
     Name = "ATA_ig"
   }
@@ -24,99 +25,99 @@ resource "aws_internet_gateway" "internet_gateway" {
 # Route tables
 
 resource "aws_route_table" "public" {
-  vpc_id = "${aws_vpc.vpc.id}"
+  vpc_id = aws_vpc.vpc.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.internet_gateway.id}"
+    gateway_id = aws_internet_gateway.internet_gateway.id
   }
 
-  tags {
+  tags = {
     Name = "ATA_public_rt"
   }
 }
 
 resource "aws_default_route_table" "private" {
-  default_route_table_id = "${aws_vpc.vpc.default_route_table_id}"
+  default_route_table_id = aws_vpc.vpc.default_route_table_id
 
-  tags {
+  tags = {
     Name = "ATA_private_default_rt"
   }
 }
 
 resource "aws_subnet" "public1" {
-  vpc_id                  = "${aws_vpc.vpc.id}"
-  cidr_block              = "${var.cidrs["public1"]}"
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = var.cidrs["public1"]
   map_public_ip_on_launch = true
-  availability_zone       = "${data.aws_availability_zones.available.names[0]}"
+  availability_zone       = data.aws_availability_zones.available.names[0]
 
-  tags {
+  tags = {
     Name = "ATA_public_sn1"
   }
 }
 
 resource "aws_subnet" "public2" {
-  vpc_id                  = "${aws_vpc.vpc.id}"
-  cidr_block              = "${var.cidrs["public2"]}"
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = var.cidrs["public2"]
   map_public_ip_on_launch = true
-  availability_zone       = "${data.aws_availability_zones.available.names[0]}"
+  availability_zone       = data.aws_availability_zones.available.names[0]
 
-  tags {
+  tags = {
     Name = "ATA_public_sn2"
   }
 }
 
 resource "aws_subnet" "private1" {
-  vpc_id                  = "${aws_vpc.vpc.id}"
-  cidr_block              = "${var.cidrs["private1"]}"
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = var.cidrs["private1"]
   map_public_ip_on_launch = false
-  availability_zone       = "${data.aws_availability_zones.available.names[1]}"
+  availability_zone       = data.aws_availability_zones.available.names[1]
 
-  tags {
+  tags = {
     Name = "ATA_private_sn1"
   }
 }
 
 resource "aws_subnet" "private2" {
-  vpc_id                  = "${aws_vpc.vpc.id}"
-  cidr_block              = "${var.cidrs["private2"]}"
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = var.cidrs["private2"]
   map_public_ip_on_launch = false
-  availability_zone       = "${data.aws_availability_zones.available.names[0]}"
+  availability_zone       = data.aws_availability_zones.available.names[0]
 
-  tags {
+  tags = {
     Name = "ATA_private_sn2"
   }
 }
 
 resource "aws_subnet" "rds1" {
-  vpc_id                  = "${aws_vpc.vpc.id}"
-  cidr_block              = "${var.cidrs["rds1"]}"
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = var.cidrs["rds1"]
   map_public_ip_on_launch = false
-  availability_zone       = "${data.aws_availability_zones.available.names[0]}"
+  availability_zone       = data.aws_availability_zones.available.names[0]
 
-  tags {
+  tags = {
     Name = "ATA_rds_sn1"
   }
 }
 
 resource "aws_subnet" "rds2" {
-  vpc_id                  = "${aws_vpc.vpc.id}"
-  cidr_block              = "${var.cidrs["rds2"]}"
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = var.cidrs["rds2"]
   map_public_ip_on_launch = false
-  availability_zone       = "${data.aws_availability_zones.available.names[1]}"
+  availability_zone       = data.aws_availability_zones.available.names[1]
 
-  tags {
+  tags = {
     Name = "ATA_rds_sn2"
   }
 }
 
 resource "aws_subnet" "rds3" {
-  vpc_id                  = "${aws_vpc.vpc.id}"
-  cidr_block              = "${var.cidrs["rds3"]}"
+  vpc_id                  = aws_vpc.vpc.id
+  cidr_block              = var.cidrs["rds3"]
   map_public_ip_on_launch = false
-  availability_zone       = "${data.aws_availability_zones.available.names[2]}"
+  availability_zone       = data.aws_availability_zones.available.names[2]
 
-  tags {
+  tags = {
     Name = "ATA_rds_sn3"
   }
 }
@@ -124,30 +125,30 @@ resource "aws_subnet" "rds3" {
 # Subnet Associations
 
 resource "aws_route_table_association" "public1_assoc" {
-  subnet_id      = "${aws_subnet.public1.id}"
-  route_table_id = "${aws_route_table.public.id}"
+  subnet_id      = aws_subnet.public1.id
+  route_table_id = aws_route_table.public.id
 }
 
 resource "aws_route_table_association" "public2_assoc" {
-  subnet_id      = "${aws_subnet.public2.id}"
-  route_table_id = "${aws_route_table.public.id}"
+  subnet_id      = aws_subnet.public2.id
+  route_table_id = aws_route_table.public.id
 }
 
 resource "aws_route_table_association" "private1_assoc" {
-  subnet_id      = "${aws_subnet.private1.id}"
-  route_table_id = "${aws_route_table.public.id}"
+  subnet_id      = aws_subnet.private1.id
+  route_table_id = aws_route_table.public.id
 }
 
 resource "aws_route_table_association" "private2_assoc" {
-  subnet_id      = "${aws_subnet.private2.id}"
-  route_table_id = "${aws_route_table.public.id}"
+  subnet_id      = aws_subnet.private2.id
+  route_table_id = aws_route_table.public.id
 }
 
 resource "aws_db_subnet_group" "rds_subnetgroup" {
   name       = "rds_subnetgroup"
-  subnet_ids = ["${aws_subnet.rds1.id}", "${aws_subnet.rds2.id}", "${aws_subnet.rds3.id}"]
+  subnet_ids = [aws_subnet.rds1.id, aws_subnet.rds2.id, aws_subnet.rds3.id]
 
-  tags {
+  tags = {
     Name = "ATA_rds_sng"
   }
 }
@@ -157,7 +158,7 @@ resource "aws_db_subnet_group" "rds_subnetgroup" {
 resource "aws_security_group" "dev_sg" {
   name        = "dev_sg"
   description = "Used for access to the dev instance"
-  vpc_id      = "${aws_vpc.vpc.id}"
+  vpc_id      = aws_vpc.vpc.id
 
   #SSH
 
@@ -165,7 +166,7 @@ resource "aws_security_group" "dev_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${var.localip}"]
+    cidr_blocks = [var.localip]
   }
 
   #HTTP
@@ -176,8 +177,8 @@ resource "aws_security_group" "dev_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
-  tags {
+
+  tags = {
     Name = "ATA_dev_sg"
   }
 }
@@ -185,7 +186,7 @@ resource "aws_security_group" "dev_sg" {
 resource "aws_security_group" "public_sg" {
   name        = "sg_public"
   description = "Used for public and private instances for load balancer access"
-  vpc_id      = "${aws_vpc.vpc.id}"
+  vpc_id      = aws_vpc.vpc.id
 
   #SSH
 
@@ -193,7 +194,7 @@ resource "aws_security_group" "public_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["${var.localip}"]
+    cidr_blocks = [var.localip]
   }
 
   #HTTP
@@ -213,8 +214,8 @@ resource "aws_security_group" "public_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
-  tags {
+
+  tags = {
     Name = "ATA_public_sg"
   }
 }
@@ -224,7 +225,7 @@ resource "aws_security_group" "public_sg" {
 resource "aws_security_group" "private_sg" {
   name        = "sg_private"
   description = "Used for private instances"
-  vpc_id      = "${aws_vpc.vpc.id}"
+  vpc_id      = aws_vpc.vpc.id
 
   # Access from other security groups
 
@@ -240,8 +241,8 @@ resource "aws_security_group" "private_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
-  tags {
+
+  tags = {
     Name = "ATA_private_sg"
   }
 }
@@ -250,7 +251,7 @@ resource "aws_security_group" "private_sg" {
 resource "aws_security_group" "RDS" {
   name        = "sg_rds"
   description = "Used for DB instances"
-  vpc_id      = "${aws_vpc.vpc.id}"
+  vpc_id      = aws_vpc.vpc.id
 
   # SQL access from public/private security group
 
@@ -258,10 +259,10 @@ resource "aws_security_group" "RDS" {
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
-    security_groups = ["${aws_security_group.dev_sg.id}", "${aws_security_group.public_sg.id}", "${aws_security_group.private_sg.id}"]
+    security_groups = [aws_security_group.dev_sg.id, aws_security_group.public_sg.id, aws_security_group.private_sg.id]
   }
-  
-  tags {
+
+  tags = {
     Name = "ATA_rds_sg"
   }
 }
@@ -272,15 +273,15 @@ resource "aws_db_instance" "db" {
   allocated_storage      = 10
   engine                 = "mysql"
   engine_version         = "5.6.41"
-  instance_class         = "${var.db_instance_class}"
-  name                   = "${var.dbname}"
-  username               = "${var.dbuser}"
-  password               = "${var.dbpassword}"
-  db_subnet_group_name   = "${aws_db_subnet_group.rds_subnetgroup.name}"
-  vpc_security_group_ids = ["${aws_security_group.RDS.id}"]
+  instance_class         = var.db_instance_class
+  name                   = var.dbname
+  username               = var.dbuser
+  password               = var.dbpassword
+  db_subnet_group_name   = aws_db_subnet_group.rds_subnetgroup.name
+  vpc_security_group_ids = [aws_security_group.RDS.id]
   skip_final_snapshot    = true
-  
-  tags {
+
+  tags = {
     Name = "ATA_rds_instance"
   }
 }
@@ -288,23 +289,23 @@ resource "aws_db_instance" "db" {
 # key pair
 
 resource "aws_key_pair" "auth" {
-  key_name   = "${var.key_name}"
-  public_key = "${file(var.public_key_path)}"
+  key_name   = var.key_name
+  public_key = file(var.public_key_path)
 }
 
 # server
 
 resource "aws_instance" "dev" {
-  instance_type = "${var.dev_instance_type}"
-  ami           = "${var.dev_ami}"
+  instance_type = var.dev_instance_type
+  ami           = var.dev_ami
 
-  tags {
+  tags = {
     Name = "ATA_wordpress_instance"
   }
 
-  key_name               = "${aws_key_pair.auth.id}"
-  vpc_security_group_ids = ["${aws_security_group.public_sg.id}"]
-  subnet_id              = "${aws_subnet.public1.id}"
+  key_name               = aws_key_pair.auth.id
+  vpc_security_group_ids = [aws_security_group.public_sg.id]
+  subnet_id              = aws_subnet.public1.id
 
   provisioner "local-exec" {
     command = <<EOD
@@ -313,6 +314,7 @@ cat <<EOF > aws_hosts
 ${aws_instance.dev.public_ip}
 EOF
 EOD
+
   }
 
   provisioner "local-exec" {
@@ -322,21 +324,23 @@ EOD
 
 #-------OUTPUTS ------------
 
-output "Database Name" {
-  value = "${var.dbname}"
+output "Database_Name" {
+  value = var.dbname
 }
 
-output "Database Hostname" {
-  value = "${aws_db_instance.db.endpoint}"
+output "Database_Hostname" {
+  value = aws_db_instance.db.endpoint
 }
 
-output "Database Username" {
-  value = "${var.dbuser}"
+output "Database_Username" {
+  value = var.dbuser
 }
 
-output "Database Password" {
-  value = "${var.dbpassword}"
+output "Database_Password" {
+  value = var.dbpassword
 }
-output "Wordpress Address" {
+
+output "Wordpress_Address" {
   value = "http://${aws_instance.dev.public_ip}"
 }
+
